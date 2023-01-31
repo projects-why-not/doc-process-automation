@@ -45,7 +45,7 @@ class ExcelDocument(Document):
         return fields
 
     def open(self):
-        print(self._path)
+        # print(self._path)
         return load_workbook(self._path)
 
     def save(self, path):

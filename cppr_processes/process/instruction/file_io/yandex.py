@@ -16,6 +16,4 @@ class YandexDiskInstruction(Instruction):
         if self.server is None:
             raise Exception("Ya Disk is not initialized!")
 
-        # FIXME
-
-        return getattr(self.server, args[0])(args[1:])
+        return getattr(self.server, args[0])(*args[1:])

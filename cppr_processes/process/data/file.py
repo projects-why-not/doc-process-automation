@@ -1,5 +1,8 @@
+import os
+
 from .data_item import BasicDataItem
-from ...document import get_class
+from ..instruction import YandexDiskInstruction
+from ...document import get_class, get_default_extension
 
 
 class File(BasicDataItem):
@@ -10,8 +13,13 @@ class File(BasicDataItem):
 
     def __call__(self, storage_provider=None):
         if self._instance is None:
-            # TODO: download from YaDisk if needed
-            self._instance = get_class(self.ftype)(self.path)
+            if storage_provider is None:
+                self._instance = get_class(self.ftype)(self.path)
+            else:
+                temp_file_name = "__temp" + get_default_extension(self.ftype)
+                YandexDiskInstruction(storage_provider)("download", self.path, temp_file_name)
+                self._instance = get_class(self.ftype)(temp_file_name)
+                os.remove(temp_file_name)
         return self._instance
 
 

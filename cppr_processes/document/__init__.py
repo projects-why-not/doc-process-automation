@@ -9,3 +9,12 @@ def get_class(doctype):
         return WordDocument
     else:
         raise ValueError
+
+
+def get_default_extension(doctype):
+    if doctype == "Excel":
+        return ".xlsx"
+    elif doctype == "Word":
+        return ".docx"
+    else:
+        raise ValueError

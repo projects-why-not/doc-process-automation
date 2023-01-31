@@ -6,7 +6,7 @@ class XMLTagParser:
             return xml_tag
 
         cmd_type = xml_tag.tag
-        if cmd_type in ["if", "condition", "then", "else", "cout"]:
+        if cmd_type in ["if", "condition", "then", "else", "cout", "login", "filename", "subject", "body", "receivers"]:
             cmd_f_label, cmd_tag = None, None
         elif cmd_type == "string" and "obj" not in xml_tag.attrib:
             cmd_f_label, cmd_tag = "{}", ""
@@ -57,7 +57,7 @@ class XMLTagParser:
                                for key_val_pair in filt_param_str[:-1].split(",")}
                 filters += [(filt_name, filt_params)]
 
-        print(filters)
+        # print(filters)
         return filters
 
     @classmethod

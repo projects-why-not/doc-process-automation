@@ -1,6 +1,9 @@
 import easywebdav
 from requests.exceptions import ConnectionError
 
+easywebdav.basestring = str
+easywebdav.client.basestring = str
+
 
 class YandexDiskProvider:
     def __init__(self):

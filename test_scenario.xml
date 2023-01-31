@@ -4,41 +4,52 @@
 <!--        <param label="" type="int"></param>-->
 <!--    </parameters>-->
     <data>
-        <file path="local*/Users/qwe/test.xlsx" label="a" type="Excel"/>
-        <template path="local*/Users/qwe/Downloads/template_leader.docx" label="temp" type="Word"/>
-        <dir path="local*/Users/qwe/Downloads/" label="d1"/>
+        <file path="yadisk*/AutoDocument test/Таблица с заявками.xlsx" label="a" type="Excel"/>
+<!--        <template path="local*/Users/petrtsopa/PycharmProjects/doc-process-automation/template_leader.docx" label="temp" type="Word"/>-->
+        <template path="yadisk*/AutoDocument test/template_leader.docx" label="temp" type="Word"/>
+<!--        <dir path="local*/Users/petrtsopa/PycharmProjects/doc-process-automation/" label="d1"/>-->
+        <dir path="yadisk*/AutoDocument test/" label="d1"/>
     </data>
     <commands>
-        <for obj="a">
-            <for obj="__iter0">
-                <open obj="temp">temp1</open>
-                <set obj="temp1*table_0@Название проекта (на русском языке)">
-                    <string obj="{}/{} - test - {}">
-                        <get obj="__iter0*name"/>
-                        <get obj="__iter1*Слушатель"/>
-                        <if>
-                            <condition kind="eq">
-                                <get obj="__iter0*name"/>
-                                <string>Группа 2</string>
-                            </condition>
-                            <then>
-                                <get obj="__iter1*Яндекс"/>
-                            </then>
-                            <else>
-                                <string filter="capitalize_words*slice{st=1,step=2}">qweqwe</string>
-                            </else>
-                        </if>
-                    </string>
-                </set>
-                <set obj="temp1*table_0@Название проекта (на английском языке)">
-                    <string filter="capitalize_words{ignore_exceptions=True}">qweqweqwe after</string>
-                </set>
-                <save dir="d1" obj="temp1">
-                    <string obj="test-{}.docx">
-                        <get obj="__iter1*Слушатель"/>
-                    </string>
-                </save>
-            </for>
-        </for>
+        <yadisk obj="login">
+            <string>some login here</string>
+            <string>some password here</string>
+        </yadisk>
+        <open obj="temp">temp1</open>
+        <set obj="temp1*table_0@Название проекта (на русском языке)">
+            <string obj="{}">
+                <get obj="a*ВЫГРУЗКАЗаявки от руководителей@1@ID"/>
+            </string>
+        </set>
+        <set obj="temp1*table_0@Название проекта (на английском языке)">
+            <string filter="capitalize_words{ignore_exceptions=True}">qweqweqwe after</string>
+        </set>
+        <save dir="d1" obj="temp1">
+            <string obj="test-{}.docx">
+                <get obj="a*ВЫГРУЗКАЗаявки от руководителей@2@ID"/>
+            </string>
+        </save>
+        <email obj="temp1">
+            <login>
+                <string>some login here</string>
+                <string>some password here</string>
+                <string>some server name here</string>
+            </login>
+            <filename>
+                <string obj="test-{}.docx">
+                    <get obj="a*ВЫГРУЗКАЗаявки от руководителей@2@ID"/>-->
+                </string>
+            </filename>
+            <subject>
+                <string>Сообщения</string>
+            </subject>
+            <body>
+                <string>Hello world!</string>
+            </body>
+            <receivers>
+                <string>some receiver here</string>
+                <string>another receiver here</string>
+            </receivers>
+        </email>
     </commands>
 </scenario>

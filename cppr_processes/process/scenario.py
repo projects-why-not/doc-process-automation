@@ -1,7 +1,9 @@
 from xml.etree import ElementTree as ET
 from .instruction import *
 from .data import *
-from ..utils.path import LocalPath
+from ..email.backend import EMailBackend
+from ..email.instruction import EMailInstruction
+from ..utils.path import LocalPath, RemotePath
 from ..utils.xml_tag_parsing import XMLTagParser
 
 
@@ -87,6 +89,61 @@ class Scenario:
 
             raise ValueError("Wrong type of cmd in play_io_cmd!")
 
+        def play_email_cmd(cmd_info):
+            cmd_obj = cmd_info["data_label"]
+
+            login_cmds = [tag["contents"] for tag in cmd_info["contents"] if tag["type"] == "login"]
+            filename_cmds = [tag["contents"] for tag in cmd_info["contents"] if tag["type"] == "filename"]
+            subject_cmds = [tag["contents"] for tag in cmd_info["contents"] if tag["type"] == "subject"]
+            body_cmds = [tag["contents"] for tag in cmd_info["contents"] if tag["type"] == "body"]
+            receivers_cmds = [tag["contents"] for tag in cmd_info["contents"] if tag["type"] == "receivers"]
+
+            if len(login_cmds) != 1:
+                raise ValueError("There must be only one login block!")
+            login_cmds = login_cmds[0]
+            if len(login_cmds) != 3:
+                raise ValueError("Login data has to contain login, password and server name!")
+            login_data = [cls._play_cmd(cmd, data) for cmd in login_cmds]
+            email_instance = data.get("__email_" + login_data[0], None)
+            if email_instance is None:
+                email_instance = EMailBackend(login_data[0], login_data[1], login_data[2], login_data[0])
+
+            if len(filename_cmds) != 1:
+                raise ValueError("There must be only one filename block!")
+            filename_cmds = filename_cmds[0]
+            if len(filename_cmds) != 1:
+                raise ValueError("Only one filename must be provided!")
+            filename = cls._play_cmd(filename_cmds[0], data)
+
+            if len(subject_cmds) > 1:
+                raise ValueError("There must be no more than one subject block!")
+            if len(subject_cmds) == 1:
+                subject_cmds = subject_cmds[0]
+                if len(subject_cmds) != 1:
+                    raise ValueError("Only one subject must be provided!")
+                subject = cls._play_cmd(subject_cmds[0], data)
+            else:
+                subject = filename
+
+            if len(body_cmds) > 1:
+                raise ValueError("There must be no more than one body block!")
+            if len(body_cmds) == 1:
+                body_cmds = body_cmds[0]
+                if len(body_cmds) != 1:
+                    raise ValueError("Only one body must be provided!")
+                body = cls._play_cmd(body_cmds[0], data)
+            else:
+                body = ""
+
+            if len(receivers_cmds) != 1:
+                raise ValueError("There must be no more than one receivers block!")
+            receivers_cmds = receivers_cmds[0]
+            if len(receivers_cmds) == 0:
+                raise ValueError("At least one receiver must be provided!")
+            receivers = [cls._play_cmd(receiver_cmd, data) for receiver_cmd in receivers_cmds]
+
+            return EMailInstruction()(data[cmd_obj](), email_instance, subject, body, filename, receivers)
+
         def play_file_io_cmd(cmd_info):
             if cmd_info["type"] == "open":
                 if type(cmd_info["contents"]) is not str:
@@ -104,7 +161,16 @@ class Scenario:
                 if "dir" in cmd_info:
                     dir_path = data[cmd_info["dir"]]()
                     cmd_path = str(LocalPath(dir_path) + cmd_path)
-                return SaveDocument()(data[cmd_obj](), cmd_path)
+
+                if data[cmd_info["dir"]].kind == "local":
+                    return SaveDocument()(data[cmd_obj](), LocalPath(cmd_path))
+                if data[cmd_info["dir"]].kind == "yadisk":
+                    return SaveDocument()(data[cmd_obj](), RemotePath(cmd_path), data["__yadisk"])
+
+                raise ValueError("Only local and yadisk storage providers are supported")
+            elif cmd_info["type"] == "email":
+                return play_email_cmd(cmd_info)
+
             raise ValueError("Wrong cmd type in play_file_io_cmd!")
 
         def play_if(cmd_info):
@@ -134,7 +200,7 @@ class Scenario:
                     return output
                 for cmd in else_cmds:
                     output = cls._play_cmd(cmd, data)
-                    print(output)
+                    # print(output)
             return output
 
         def play_yadisk_cmd(cmd_info):
@@ -159,7 +225,7 @@ class Scenario:
 
         if cmd_info["type"] in ["get", "set", "cout"]:
             return play_io_cmd(cmd_info)
-        elif cmd_info["type"] in ["open", "save", "close"]:
+        elif cmd_info["type"] in ["open", "save", "close", "email"]:
             return play_file_io_cmd(cmd_info)
         elif cmd_info["type"] == "yadisk":
             play_yadisk_cmd(cmd_info)
@@ -177,7 +243,7 @@ class Scenario:
                 parent_node = get_document(data, cmd_info)
             # if callable(parent_node) and type(parent_node) is not Directory:
             #     parent_node = parent_node()
-            if type(parent_node) is Directory and parent_node._kind == "yadisk":
+            if type(parent_node) is Directory and parent_node.kind == "yadisk":
                 parent_node.server = data["__yadisk"]
 
             if len(cmd_info["data_tag"]) > 0:
