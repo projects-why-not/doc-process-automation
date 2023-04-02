@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 from .instruction import *
 from .data import *
+from ..document import WordDocument
 from ..email.backend import EMailBackend
 from ..email.instruction import EMailInstruction
 from ..utils.path import LocalPath, RemotePath
@@ -214,6 +215,26 @@ class Scenario:
                 data["__yadisk"] = cmd_res
             return cmd_res
 
+        def play_alter_structure_cmd(cmd_info):
+            obj = get_document(data, cmd_info)
+
+            if type(obj) is not WordDocument:
+                raise ValueError("Only word documents can be altered!")
+
+            table_name = cmd_info["data_tag"]
+
+            for insert_cmd in cmd_info["contents"]:
+                if len(insert_cmd["contents"]) != 1:
+                    raise ValueError("Only one name of the new row must be provided!")
+
+                func = None
+                if insert_cmd["type"] == "insert":
+                    func = obj.insert_row
+                if insert_cmd["type"] == "remove":
+                    func = obj.remove_row
+
+                func(table_name, cls._play_cmd(insert_cmd["contents"][0], data))
+
         if type(cmd_xml) is dict:
             cmd_info = cmd_xml
         elif type(cmd_xml) is str:
@@ -229,6 +250,8 @@ class Scenario:
             return play_file_io_cmd(cmd_info)
         elif cmd_info["type"] == "yadisk":
             play_yadisk_cmd(cmd_info)
+        elif cmd_info["type"] == "alter":
+            play_alter_structure_cmd(cmd_info)
         elif cmd_info["type"] == "string":
             return FormattedString()(cmd_info["data_label"],
                                      *[cls._play_cmd(cmd, data)

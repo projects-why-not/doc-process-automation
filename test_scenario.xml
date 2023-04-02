@@ -15,6 +15,14 @@
                 <get obj="a*ВЫГРУЗКАЗаявки от руководителей@1@ID"/>
             </string>
         </set>
+        <alter obj="temp1*table_0">
+            <insert>
+                <string>new row name</string>
+            </insert>
+            <remove>
+                <string>Количество кредитов</string>
+            </remove>
+        </alter>
         <set obj="temp1*table_0@Название проекта (на английском языке)">
             <string filter="capitalize_words{ignore_exceptions=True}">qweqweqwe after</string>
         </set>

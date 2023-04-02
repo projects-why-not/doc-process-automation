@@ -6,7 +6,8 @@ class XMLTagParser:
             return xml_tag
 
         cmd_type = xml_tag.tag
-        if cmd_type in ["if", "condition", "then", "else", "cout", "login", "filename", "subject", "body", "receivers"]:
+        if cmd_type in ["if", "condition", "then", "else", "cout", "login", "filename", "subject", "body", "receivers",
+                        "insert", "remove"]:
             cmd_f_label, cmd_tag = None, None
         elif cmd_type == "string" and "obj" not in xml_tag.attrib:
             cmd_f_label, cmd_tag = "{}", ""
