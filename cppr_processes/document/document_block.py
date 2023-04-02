@@ -7,6 +7,9 @@ class DocumentBlock:
         self._blocks = subblocks
         self._iter_ind = None
 
+    def has_subblocks(self):
+        return self._blocks is not None
+
     def __getitem__(self, item):
         if item == "name":
             return self._name
