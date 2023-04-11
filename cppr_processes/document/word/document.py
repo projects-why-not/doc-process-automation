@@ -73,7 +73,7 @@ class WordDocument(Document):
         if table_name not in self._fields:
             raise Exception(f"Table {table_name} doesn't exist!")
 
-        table_num = table_name.removeprefix("table_")
+        table_num = table_name[len("table_"):]
         f_table: Table = self._f_instance.tables[int(table_num)]
 
         new_row = f_table.add_row()
@@ -87,7 +87,7 @@ class WordDocument(Document):
         if table_name not in self._fields:
             raise Exception(f"Table \"{table_name}\" doesn't exist!")
 
-        table_num = table_name.removeprefix("table_")
+        table_num = table_name[len("table_"):]
 
         f_table = self._f_instance.tables[int(table_num)]
 
