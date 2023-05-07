@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from .instruction import Instruction
 from ...document.document_block import DocumentBlock
 from ...utils.string import StringUtils
@@ -15,6 +17,9 @@ class Get(Instruction):
         if type(res) is str:
             return res
         if hasattr(res, "text"):
+            if isinstance(res.text, datetime):
+                if res.text.hour == 0 and res.text.minute == 0 and res.text.second == 0:
+                    return res.text.date()
             return res.text
         return str(res)
 

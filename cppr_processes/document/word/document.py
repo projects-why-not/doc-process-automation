@@ -18,7 +18,7 @@ class WordDocument(Document):
             if len(docx_table.columns) == 2:
                 return "simple_form"
             else:
-                raise NotImplementedError("Not ready to work with different tables!")
+                # raise NotImplementedError("Not ready to work with different tables!")
                 return "smth other"
 
         def iter_block_items(parent):
@@ -62,10 +62,9 @@ class WordDocument(Document):
                     fields[f"table_{n_tables}"] = WordDocumentTable(block,
                                                                     f"table_{n_tables}",
                                                                     cells)
-                else:
-                    raise NotImplementedError("Other tables are not supported yet!")
-
-                n_tables += 1
+                    n_tables += 1
+                # else:
+                    # raise NotImplementedError("Other tables are not supported yet!")
 
         return fields
 
