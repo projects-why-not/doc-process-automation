@@ -8,9 +8,9 @@ from os import listdir, sep
 class Directory(BasicDataItem):
     def __init__(self, path):
         super().__init__(path)
-        self._kind, self._instance = path.split("*")[0], "*".join(path.split("*")[1:])
+        self.kind, self._instance = path.split("*")[0], "*".join(path.split("*")[1:])
         self.server = None
-        if self._kind not in ["local", "yadisk"]:
+        if self.kind not in ["local", "yadisk"]:
             raise ValueError("Wrong directory type!")
 
     @classmethod
@@ -24,7 +24,7 @@ class Directory(BasicDataItem):
             return None
 
     def _list(self):
-        if self._kind == "local":
+        if self.kind == "local":
             files = listdir(self._instance)
             format_path = lambda x: str(LocalPath(self._instance) + x)
         else:

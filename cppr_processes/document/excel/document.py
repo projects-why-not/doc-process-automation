@@ -10,13 +10,6 @@ class ExcelDocument(Document):
     def _parse_fields(self):
         # TODO: manage other table types
 
-        def next_letter(let):
-            if len(let) == 0:
-                return "A"
-            if let[-1] == "Z":
-                return next_letter(let[:-1]) + "A"
-            return let[:-1] + chr(ord(let[-1]) + 1)
-
         fields = {}
 
         for sheet in self._f_instance.worksheets:
@@ -40,12 +33,12 @@ class ExcelDocument(Document):
                 row_ind += 1
                 # print("\tadding row", row_ind - 2)
 
-            fields[sheet.title] = ExcelSheet(None, sheet.title, rows)
+            fields[sheet.title] = ExcelSheet(sheet, sheet.title, rows, headers)
 
         return fields
 
     def open(self):
-        print(self._path)
+        # print(self._path)
         return load_workbook(self._path)
 
     def save(self, path):

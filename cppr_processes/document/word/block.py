@@ -34,3 +34,9 @@ class WordDocumentTableField(DocumentBlock):
 class WordDocumentTable(DocumentBlock):
     def __init__(self, instance, name, subblocks):
         super().__init__(instance, name, subblocks)
+
+    def add_field(self, table_field, field_name):
+        self._blocks[field_name] = table_field
+
+    def remove_field(self, field_name):
+        del self._blocks[field_name]
